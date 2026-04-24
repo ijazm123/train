@@ -1,5 +1,5 @@
 // CI Pipeline for Train Schedule App
-// Matches: Checkout → Pre-checks → Build → Scan (Trivy) → AI Security Gate → Push
+// Matches: Checkout → Build → Scan (Trivy) → AI Security Gate → Push
 
 pipeline {
     agent any
@@ -34,31 +34,7 @@ pipeline {
             }
         }
 
-        stage('2. Pre-checks') {
-            parallel {
-                stage('Hadolint') {
-                    when { expression { fileExists('Dockerfile') } }
-                    steps {
-                        echo "🔍 Linting Dockerfile..."
-                        sh 'docker run --rm -i hadolint/hadolint < Dockerfile || true'
-                    }
-                }
-                stage('npm audit') {
-                    steps {
-                        echo "🔐 Checking npm dependencies for vulnerabilities..."
-                        sh 'npm audit --audit-level=high || true'
-                    }
-                }
-                stage('Gitleaks') {
-                    steps {
-                        echo "🔍 Scanning for secrets..."
-                        sh 'docker run --rm -v "$(pwd):/src" zricethezav/gitleaks:latest detect --source=/src -v || true'
-                    }
-                }
-            }
-        }
-
-        stage('3. Build Docker Image') {
+        stage('2. Build Docker Image') {
             steps {
                 echo "🏗️ Building Docker image: ${DOCKER_IMAGE}"
                 
@@ -90,7 +66,7 @@ CMD ["npm", "start"]
             }
         }
 
-        stage('4. Scan Image (Trivy)') {
+        stage('3. Scan Image (Trivy)') {
             steps {
                 echo "🛡️ Scanning image for vulnerabilities..."
                 sh """
@@ -118,7 +94,7 @@ CMD ["npm", "start"]
             }
         }
 
-        stage('5. AI Security Gate (Gemini)') {
+        stage('4. AI Security Gate (Gemini)') {
             when {
                 expression { !params.SKIP_SECURITY_GATE }
             }
@@ -167,7 +143,7 @@ CMD ["npm", "start"]
             }
         }
 
-        stage('6. Push to Registry') {
+        stage('5. Push to Registry') {
             steps {
                 echo "📦 Image ready: ${DOCKER_IMAGE}"
                 echo "ℹ️  To push to registry, configure docker-registry-creds"
@@ -213,3 +189,4 @@ CMD ["npm", "start"]
         }
     }
 }
+

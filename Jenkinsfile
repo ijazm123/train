@@ -6,7 +6,14 @@ pipeline {
 
     parameters {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/ijazm123/train.git', description: 'Git repository URL')
-        string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Branch to build')
+        gitParameter(name: 'GIT_BRANCH', 
+            branchFilter: 'origin/(.*)', 
+            defaultValue: 'master', 
+            description: 'Select branch to build',
+            type: 'PT_BRANCH',
+            sortMode: 'ASCENDING_SMART',
+            selectedValue: 'DEFAULT',
+            quickFilterEnabled: true)
         string(name: 'IMAGE_NAME', defaultValue: 'train-schedule', description: 'Docker image name')
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run npm tests')

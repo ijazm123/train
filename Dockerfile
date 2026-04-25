@@ -1,5 +1,6 @@
 # Train Schedule App - Node.js Express
-FROM node:18-alpine
+# Pin to Alpine 3.21 line for current security patches.
+FROM node:18-alpine3.21
 
 LABEL maintainer="ijazm123"
 LABEL app="train-schedule"
@@ -7,6 +8,9 @@ LABEL version="1.0.0"
 
 # Create app directory
 WORKDIR /app
+
+# Pull latest OS security updates during build.
+RUN apk upgrade --no-cache
 
 # Install dependencies first (better layer caching)
 COPY package*.json ./
